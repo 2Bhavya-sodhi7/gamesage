@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # 1. Page configuration MUST be first
-st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
+st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯",initial_sidebar_state="expanded")
 # 3. Sidebar navigation
 menu = st.sidebar.selectbox("Navigate", [
     "Home",
