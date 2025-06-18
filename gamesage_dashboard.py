@@ -557,8 +557,8 @@ elif menu == "Physical & Digital Benchmarks":
     st.markdown("## Brand ROI Calculation Framework")
     st.markdown("""
     <div class="benchmark-card">
-    <h4>Industry Standard ROI Metrics (Based on Sports Marketing Research)</h4>
-    <p>These benchmarks are derived from Nielsen Sports and industry analysis:</p>
+    <h4></h4>
+    <p>:</p>
     </div>
     """, unsafe_allow_html=True)
 
