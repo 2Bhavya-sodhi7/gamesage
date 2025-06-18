@@ -14,18 +14,70 @@ from plotly.subplots import make_subplots
 # 1. Page configuration MUST be first
 st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
 
-# Move sidebar to the right
 st.markdown("""
     <style>
+    /* Force sidebar to always be visible and positioned correctly */
     [data-testid="stSidebar"] {
-        margin-left: 50px !important;  /* 50px gap from left edge */
-        position: relative !important;
+        display: block !important;
+        visibility: visible !important;
+        position: fixed !important;
+        left: 40px !important;
+        top: 60px !important;
+        width: 300px !important;
+        height: calc(100vh - 80px) !important;
+        z-index: 999999 !important;
+        background-color: #ffffff !important;
+        border: 2px solid #e6e6e6 !important;
+        border-radius: 15px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
     }
     
-    /* Adjust main content to prevent overlap */
-    .main .block-container {
-        margin-left: 350px !important;  /* Sidebar width + margin */
+    /* Ensure sidebar content is properly styled */
+    [data-testid="stSidebar"] > div:first-child {
+        width: 300px !important;
+        padding: 1.5rem !important;
+        background-color: #ffffff !important;
+        border-radius: 15px !important;
+    }
+    
+    /* Force sidebar to stay expanded - prevent collapsing */
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        display: block !important;
+        margin-left: 0px !important;
+        width: 300px !important;
+        left: 40px !important;
+    }
+    
+    /* Hide the collapse/expand button completely */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    
+    /* Adjust main content to account for fixed sidebar */
+    .main {
+        margin-left: 360px !important;
         padding-left: 2rem !important;
+        padding-top: 2rem !important;
+    }
+    
+    .main .block-container {
+        padding-left: 1rem !important;
+        max-width: calc(100% - 360px) !important;
+    }
+    
+    /* Ensure sidebar widgets are properly styled */
+    [data-testid="stSidebar"] .stSelectbox {
+        background-color: #f8f9fa !important;
+        border-radius: 8px !important;
+        padding: 0.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Style the sidebar title area */
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+        color: #333 !important;
+        text-align: center !important;
+        margin-bottom: 1rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
