@@ -13,13 +13,14 @@ from plotly.subplots import make_subplots
 
 # 1. Page configuration MUST be first
 st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
+# 3. Sidebar navigation
 menu = st.sidebar.selectbox("Navigate", [
     "Home",
     "Missed Branding Opportunities", 
     "Power of Prediction & Analysis",
     "Physical & Digital Benchmarks"
 ])
-# 2. Enhanced styling
+
 st.markdown("""
     <style>
       body, .css-18e3th9 { background-color: #ffffff !important; }
@@ -136,13 +137,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. Sidebar navigation
-menu = st.sidebar.selectbox("Navigate", [
-    "Home",
-    "Missed Branding Opportunities", 
-    "Power of Prediction & Analysis",
-    "Physical & Digital Benchmarks"
-])
+
 
 # 4. Load datasets with error handling
 try:
