@@ -10,75 +10,82 @@ from dotenv import load_dotenv
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from streamlit_navigation_bar import st_navbar
 
 # 1. Page configuration MUST be first
-st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
+st.set_page_config(
+    page_title="GameSage", 
+    layout="wide", 
+    page_icon="🎯",
+    initial_sidebar_state="collapsed"  # Hide sidebar since we're using top nav
+)
 
+# 2. Top Navigation Bar
+pages = ["Home", "Missed Branding Opportunities", "Power of Prediction & Analysis", "Physical & Digital Benchmarks"]
+
+styles = {
+    "nav": {
+        "background-color": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "justify-content": "center",
+    },
+    "img": {
+        "padding-right": "14px",
+    },
+    "span": {
+        "color": "white",
+        "padding": "14px",
+        "font-weight": "bold",
+    },
+    "active": {
+        "background-color": "rgba(255, 255, 255, 0.25)",
+        "color": "white",
+        "font-weight": "bold",
+        "padding": "14px",
+    }
+}
+
+options = {
+    "show_menu": False,
+    "show_sidebar": False,
+}
+
+menu = st_navbar(
+    pages,
+    styles=styles,
+    options=options,
+)
+
+# 3. Enhanced styling (same as before)
 st.markdown("""
     <style>
-    /* Force sidebar to always be visible and positioned correctly */
-    [data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        position: fixed !important;
-        left: 40px !important;
-        top: 60px !important;
-        width: 300px !important;
-        height: calc(100vh - 80px) !important;
-        z-index: 999999 !important;
-        background-color: #ffffff !important;
-        border: 2px solid #e6e6e6 !important;
-        border-radius: 15px !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
-    }
-    
-    /* Ensure sidebar content is properly styled */
-    [data-testid="stSidebar"] > div:first-child {
-        width: 300px !important;
-        padding: 1.5rem !important;
-        background-color: #ffffff !important;
-        border-radius: 15px !important;
-    }
-    
-    /* Force sidebar to stay expanded - prevent collapsing */
-    [data-testid="stSidebar"][aria-expanded="false"] {
-        display: block !important;
-        margin-left: 0px !important;
-        width: 300px !important;
-        left: 40px !important;
-    }
-    
-    /* Hide the collapse/expand button completely */
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    
-    /* Adjust main content to account for fixed sidebar */
-    .main {
-        margin-left: 360px !important;
-        padding-left: 2rem !important;
-        padding-top: 2rem !important;
-    }
-    
-    .main .block-container {
-        padding-left: 1rem !important;
-        max-width: calc(100% - 360px) !important;
-    }
-    
-    /* Ensure sidebar widgets are properly styled */
-    [data-testid="stSidebar"] .stSelectbox {
-        background-color: #f8f9fa !important;
-        border-radius: 8px !important;
-        padding: 0.5rem !important;
-        margin-bottom: 1rem !important;
-    }
-    
-    /* Style the sidebar title area */
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-        color: #333 !important;
-        text-align: center !important;
-        margin-bottom: 1rem !important;
-    }
+      body, .css-18e3th9 { background-color: #ffffff !important; }
+      header, footer { visibility: hidden; }
+      
+      /* Hide the default streamlit header */
+      .stApp > header { display: none; }
+      
+      .main-header { 
+        font-size: 48px; 
+        font-weight: bold; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center; 
+        margin-bottom: 10px;
+        font-family: 'Arial Black', sans-serif;
+      }
+      
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 40px;
+        border-radius: 20px;
+        color: white;
+        text-align: center;
+        margin: 30px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      }
+      
+      /* Rest of your existing CSS... */
     </style>
 """, unsafe_allow_html=True)
 # 3. Sidebar navigation
