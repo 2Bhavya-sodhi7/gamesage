@@ -4,7 +4,7 @@ matplotlib
 seaborn
 folium
 streamlit-folium
-opencage-geocoder
+opencage
 python-dotenv
 numpy
 plotly
