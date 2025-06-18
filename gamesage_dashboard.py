@@ -10,59 +10,13 @@ from dotenv import load_dotenv
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from streamlit_navigation_bar import st_navbar
 
-# 1. Page configuration MUST be first
-st.set_page_config(
-    page_title="GameSage", 
-    layout="wide", 
-    page_icon="🎯",
-    initial_sidebar_state="collapsed"  # Hide sidebar since we're using top nav
-)
-
-# 2. Top Navigation Bar
-pages = ["Home", "Missed Branding Opportunities", "Power of Prediction & Analysis", "Physical & Digital Benchmarks"]
-
-styles = {
-    "nav": {
-        "background-color": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        "justify-content": "center",
-    },
-    "img": {
-        "padding-right": "14px",
-    },
-    "span": {
-        "color": "white",
-        "padding": "14px",
-        "font-weight": "bold",
-    },
-    "active": {
-        "background-color": "rgba(255, 255, 255, 0.25)",
-        "color": "white",
-        "font-weight": "bold",
-        "padding": "14px",
-    }
-}
-
-options = {
-    "show_menu": False,
-    "show_sidebar": False,
-}
-
-menu = st_navbar(
-    pages,
-    styles=styles,
-    options=options,
-)
-
-# 3. Enhanced styling (same as before)
+# 1. Page configuration & enhanced styling
+st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
 st.markdown("""
     <style>
       body, .css-18e3th9 { background-color: #ffffff !important; }
       header, footer { visibility: hidden; }
-      
-      /* Hide the default streamlit header */
-      .stApp > header { display: none; }
       
       .main-header { 
         font-size: 48px; 
@@ -75,41 +29,12 @@ st.markdown("""
         font-family: 'Arial Black', sans-serif;
       }
       
-      .hero-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 60px 40px;
-        border-radius: 20px;
-        color: white;
+      .tagline {
+        font-size: 24px;
+        color: #666;
         text-align: center;
-        margin: 30px 0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      }
-      
-      /* Rest of your existing CSS... */
-    </style>
-""", unsafe_allow_html=True)
-# 3. Sidebar navigation
-menu = st.sidebar.selectbox("Navigate", [
-    "Home",
-    "Missed Branding Opportunities", 
-    "Power of Prediction & Analysis",
-    "Physical & Digital Benchmarks"
-])
-
-st.markdown("""
-    <style>
-      body, .css-18e3th9 { background-color: #ffffff !important; }
-      header, footer { visibility: hidden; }
-      
-      .main-header { 
-        font-size: 48px; 
-        font-weight: bold; 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center; 
-        margin-bottom: 10px;
-        font-family: 'Arial Black', sans-serif;
+        margin-bottom: 40px;
+        font-style: italic;
       }
       
       .hero-section {
@@ -203,18 +128,34 @@ st.markdown("""
         font-size: 14px;
       }
       
-      .benchmark-card {
+      .tech-stack {
         background: #f8f9fa;
         padding: 30px;
         border-radius: 15px;
         margin: 30px 0;
       }
+      
+      .tech-item {
+        background: white;
+        padding: 15px 25px;
+        border-radius: 25px;
+        display: inline-block;
+        margin: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        font-weight: 500;
+      }
     </style>
 """, unsafe_allow_html=True)
 
+# 2. Sidebar navigation
+menu = st.sidebar.selectbox("Navigate", [
+    "Home",
+    "Missed Branding Opportunities", 
+    "Power of Prediction & Analysis",
+    "Physical & Digital Benchmarks"
+])
 
-
-# 4. Load datasets with error handling
+# 3. Load datasets
 try:
     sponsor_df = pd.read_csv("final_sponsor_detections(3).csv")
     sponsor_df.columns = sponsor_df.columns.str.strip()
@@ -235,7 +176,7 @@ except:
         'VisibleSponsorsDuringPeak': ['Dream11, Tata', 'Vivo', 'NoSponsorDetected', 'Byju\'s, PayTM', 'Dream11']
     })
 
-# 5. HOME SECTION
+# 4. ENHANCED HOME SECTION
 if menu == "Home":
     # Hero Section
     st.markdown("""
@@ -250,7 +191,7 @@ if menu == "Home":
     """, unsafe_allow_html=True)
     
     # Key Features Section
-    st.markdown("## 🚀 **Key Features**")
+    st.markdown("## 🚀 *Key Features*")
     
     col1, col2, col3, col4 = st.columns(4)
     
@@ -310,29 +251,29 @@ if menu == "Home":
     with col2:
         st.markdown("""
         <div class="stat-item">
-            <span class="stat-number">40M+</span>
-            <div class="stat-label">Impressions Tracked</div>
+            <span class="stat-number"></span>
+            <div class="stat-label"></div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
         <div class="stat-item">
-            <span class="stat-number">85%</span>
-            <div class="stat-label">ROI Improvement</div>
+            <span class="stat-number"></span>
+            <div class="stat-label"></div>
         </div>
         """, unsafe_allow_html=True)
     
     with col4:
         st.markdown("""
         <div class="stat-item">
-            <span class="stat-number">24/7</span>
-            <div class="stat-label">Real-time Monitoring</div>
+            <span class="stat-number"></span>
+            <div class="stat-label"></div>
         </div>
         """, unsafe_allow_html=True)
     
     # Demo Section
-    st.markdown("## 🎮 **Interactive Demo**")
+    st.markdown("## 🎮 *Interactive Demo*")
     
     demo_col1, demo_col2 = st.columns([2, 1])
     
@@ -374,14 +315,16 @@ if menu == "Home":
         plt.tight_layout()
         st.pyplot(fig)
     
+   
+    
     # Use Cases
-    st.markdown("## 💼 **Use Cases**")
+    st.markdown("## 💼 *Use Cases*")
     
     use_case_col1, use_case_col2, use_case_col3 = st.columns(3)
     
     with use_case_col1:
         st.markdown("""
-        **🏏 Sports Teams & Leagues**
+        *🏏 Sports Teams & Leagues*
         - Optimize sponsor placement strategies
         - Maximize brand exposure during matches
         - Track competitor sponsorship performance
@@ -390,7 +333,7 @@ if menu == "Home":
     
     with use_case_col2:
         st.markdown("""
-        **🏢 Brand Sponsors**
+        *🏢 Brand Sponsors*
         - Measure campaign effectiveness
         - Compare ROI across different sports
         - Identify viral moment opportunities
@@ -399,7 +342,7 @@ if menu == "Home":
     
     with use_case_col3:
         st.markdown("""
-        **📺 Media & Broadcasting**
+        *📺 Media & Broadcasting*
         - Enhance viewer experience analytics
         - Optimize ad placement timing
         - Track content engagement metrics
@@ -415,7 +358,8 @@ if menu == "Home":
     </div>
     """, unsafe_allow_html=True)
 
-# 6. Missed Branding Opportunities
+# [Rest of your existing code for other sections remains the same...]
+# 5. Missed Branding Opportunities
 elif menu == "Missed Branding Opportunities":
     st.title("Missed Branding Opportunities")
 
@@ -464,12 +408,12 @@ elif menu == "Missed Branding Opportunities":
     peak_counts = exploded.value_counts().drop("NoSponsorDetected", errors="ignore")
     st.bar_chart(peak_counts)
 
-# 7. Power of Prediction & Analysis
+# 6. Power of Prediction & Analysis
 elif menu == "Power of Prediction & Analysis":
     st.title("Power of Prediction & Analysis (RCB VS PBKS FINAL MATCH)")
     st.write("AI-powered forecasts for brand impact and ROI")
 
-    # Create IPL-style Wagon Wheel
+    # Create IPL-style Wagon Wheel exactly like the images
     def create_ipl_wagon_wheel(team_name, innings, total_runs, off_side_runs, on_side_runs, zones_data):
         fig = go.Figure()
         
@@ -515,7 +459,7 @@ elif menu == "Power of Prediction & Analysis":
             if runs > 0:
                 angle = zone_angles.get(zone, 0)
                 # Add multiple lines for each boundary/run
-                for j in range(boundaries + max(1, runs//4)):
+                for j in range(boundaries + max(1, runs//4)):  # More lines for more runs
                     r_val = 0.3 + (j * 0.1) + np.random.uniform(-0.05, 0.05)
                     line_angle = angle + np.random.uniform(-15, 15)
                     
@@ -557,7 +501,7 @@ elif menu == "Power of Prediction & Analysis":
         
         return fig
 
-    # Sample data for PBKS and RCB
+    # Sample data for PBKS and RCB (matching the images)
     pbks_zones = [
         ('Third Man', 16, 2),
         ('Point', 6, 0),
@@ -588,8 +532,10 @@ elif menu == "Power of Prediction & Analysis":
         pbks_fig = create_ipl_wagon_wheel("PBKS", "2nd Innings", 173, 39, 61, pbks_zones)
         st.plotly_chart(pbks_fig, use_container_width=True)
         
-        st.markdown("**39% Runs Off Side | 61% Runs On Side**")
+        # Add the statistics table exactly like IPL
+        st.markdown("*39% Runs Off Side | 61% Runs On Side*")
         
+        # Create stats table
         pbks_stats = pd.DataFrame({
             'Zone': ['Third Man', 'Point', 'Cover', 'Long Off'],
             'Runs': [16, 6, 33, 13],
@@ -597,7 +543,8 @@ elif menu == "Power of Prediction & Analysis":
         })
         st.table(pbks_stats)
         
-        st.markdown("**Match Summary:**")
+        # Add ball-by-ball summary
+        st.markdown("*Match Summary:*")
         summary_data = {
             'ALL': 173,
             '1s': 45,
@@ -623,8 +570,10 @@ elif menu == "Power of Prediction & Analysis":
         rcb_fig = create_ipl_wagon_wheel("RCB", "1st Innings", 181, 43, 57, rcb_zones)
         st.plotly_chart(rcb_fig, use_container_width=True)
         
-        st.markdown("**43% Runs Off Side | 57% Runs On Side**")
+        # Add the statistics table exactly like IPL
+        st.markdown("*43% Runs Off Side | 57% Runs On Side*")
         
+        # Create stats table
         rcb_stats = pd.DataFrame({
             'Zone': ['Third Man', 'Point', 'Cover', 'Long Off'],
             'Runs': [14, 6, 32, 25],
@@ -632,7 +581,8 @@ elif menu == "Power of Prediction & Analysis":
         })
         st.table(rcb_stats)
         
-        st.markdown("**Match Summary:**")
+        # Add ball-by-ball summary
+        st.markdown("*Match Summary:*")
         summary_data_rcb = {
             'ALL': 181,
             '1s': 61,
@@ -652,7 +602,7 @@ elif menu == "Power of Prediction & Analysis":
                 </div>
                 """, unsafe_allow_html=True)
 
-    # ROI Benchmark Analysis
+    # --- ROI Benchmark Analysis ---
     st.markdown("---")
     st.subheader("Brand Impact & ROI Benchmark Breakdown")
     labels = [
@@ -667,18 +617,23 @@ elif menu == "Power of Prediction & Analysis":
     bench_df = pd.DataFrame({'Metric': labels, 'Weight (%)': sizes})
     st.table(bench_df)
 
-    # Commentary
+    
+
+    
+    
+
+    # --- Commentary ---
     st.markdown("""
     > This dashboard demonstrates how AI-powered analytics and predictive modeling can optimize both physical and digital brand placements.  
     > The wagon wheel visualizes scoring patterns and opportunity zones for maximum brand exposure, while the ROI charts benchmark campaign effectiveness using industry-accepted metrics.
     """)
 
-# 8. Physical & Digital Benchmarks
+# 7. Physical & Digital Benchmarks (Enhanced based on transcript)
 elif menu == "Physical & Digital Benchmarks":
     st.title("Physical & Digital Benchmarks")
     st.write("Key benchmarks for on-site signage and online campaigns based on industry research")
 
-    # Brand ROI Calculation Framework
+    ## *Brand ROI Calculation Framework*
     st.markdown("## Brand ROI Calculation Framework")
     st.markdown("""
     <div class="benchmark-card">
@@ -724,7 +679,7 @@ elif menu == "Physical & Digital Benchmarks":
     st.subheader("Detailed ROI Metrics Breakdown")
     st.dataframe(roi_breakdown)
 
-    # Viral Content Benchmarks
+    ## *Viral Content Benchmarks*
     st.markdown("## Viral Content Benchmarks")
     st.markdown("""
     <div class="benchmark-card">
@@ -743,7 +698,7 @@ elif menu == "Physical & Digital Benchmarks":
     viral_df = pd.DataFrame(viral_benchmarks)
     st.table(viral_df)
 
-    # Physical vs Digital Advertising Benchmarks
+    ## *Physical vs Digital Advertising Benchmarks*
     st.markdown("## Physical vs Digital Advertising Benchmarks")
     
     col1, col2 = st.columns(2)
@@ -790,7 +745,7 @@ elif menu == "Physical & Digital Benchmarks":
         plt.xticks(rotation=45)
         st.pyplot(fig)
 
-    # Multi-Platform Campaign Effectiveness
+    ## *Multi-Platform Campaign Effectiveness*
     st.markdown("## Multi-Platform Campaign Effectiveness")
     st.markdown("""
     <div class="benchmark-card">
@@ -819,7 +774,7 @@ elif menu == "Physical & Digital Benchmarks":
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Stadium-Specific Insights
+    ## *Stadium-Specific Insights*
     st.markdown("## Stadium-Specific Insights")
     st.markdown("""
     <div class="benchmark-card">
@@ -854,7 +809,7 @@ elif menu == "Physical & Digital Benchmarks":
     ax.set_title('Stadium Characteristics vs Brand Exposure')
     st.pyplot(fig)
 
-    # Key Takeaways
+    ## *Key Takeaways*
     st.markdown("## Key Takeaways for Brand Strategy")
     st.markdown("""
     <div class="benchmark-card">
