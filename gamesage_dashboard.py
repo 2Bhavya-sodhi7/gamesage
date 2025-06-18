@@ -13,7 +13,12 @@ from plotly.subplots import make_subplots
 
 # 1. Page configuration MUST be first
 st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
-
+menu = st.sidebar.selectbox("Navigate", [
+    "Home",
+    "Missed Branding Opportunities", 
+    "Power of Prediction & Analysis",
+    "Physical & Digital Benchmarks"
+])
 # 2. Enhanced styling
 st.markdown("""
     <style>
