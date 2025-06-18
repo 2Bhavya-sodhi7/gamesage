@@ -12,7 +12,26 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # 1. Page configuration MUST be first
-st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯",initial_sidebar_state="expanded")
+st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯")
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+    }
+    [data-testid="stSidebar"][aria-expanded="false"] {
+        display: block !important;
+        margin-left: 0px !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        width: 300px !important;
+    }
+    /* Hide the collapse button */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # 3. Sidebar navigation
 menu = st.sidebar.selectbox("Navigate", [
     "Home",
