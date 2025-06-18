@@ -8,3 +8,4 @@ opencage
 python-dotenv
 numpy
 plotly
+streamlit-navigation-bar
