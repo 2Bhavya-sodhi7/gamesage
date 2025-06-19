@@ -1,0 +1,39 @@
+over,ball,runs,extra,bowler,batsman,shot_direction
+19,5.0,1.0,,Arshdeep Singh,Bhuvneshwar Kumar,Long On
+19,4.0,0.0,,Arshdeep Singh,Yash Dayal,Straight Long-On
+19,3.0,1.0,,Arshdeep Singh,Krunal Pandya,Long On
+19,2.0,0.0,,Arshdeep Singh,Bhuvneshwar Kumar,Back Pad (LBW)
+19,1.0,1.0,,Arshdeep Singh,Romario Shepherd,Forward Point
+18,6.0,6.0,,Arshdeep Singh,Krunal Pandya,Long-On
+18,5.0,4.0,,Azmatullah Omarzai,Romario Shepherd,Fine Leg
+18,4.0,1.0,,Azmatullah Omarzai,Romario Shepherd,Fine Leg
+18,3.0,1.0,,Azmatullah Omarzai,Krunal Pandya,Country
+18,2.0,1.0,,Azmatullah Omarzai,Romario Shepherd,Extra Covers
+18,1.0,1.0,,Azmatullah Omarzai,Krunal Pandya,Deep Covers
+17,6.0,1.0,,Azmatullah Omarzai,Romario Shepherd,Forward Push
+17,5.0,1.0,,Vyshak Vijaykumar,Romario Shepherd,Forward Push
+17,4.0,0.0,,Vyshak Vijaykumar,Krunal Pandya,Stumps (Bowled)
+17,3.0,0.0,,Vyshak Vijaykumar,Jitesh Sharma,Defensive Push
+17,2.0,1.0,,Vyshak Vijaykumar,Jitesh Sharma,Mid-Wicket
+17,1.0,2.0,,Vyshak Vijaykumar,Romario Shepherd,Mid-Wicket
+16,6.0,1.0,,Vyshak Vijaykumar,Romario Shepherd,Extra Covers
+16,5.0,0.0,,Kyle Jamieson,Romario Shepherd,Stumps (LBW)
+16,5.0,1.0,WD,Kyle Jamieson,Liam Livingstone,Scoop (Wide)
+16,4.0,6.0,,Kyle Jamieson,Liam Livingstone,Mid-Wicket
+16,4.0,1.0,WD,Kyle Jamieson,Liam Livingstone,Mid-Wicket (Wide)
+16,3.0,1.0,,Kyle Jamieson,Liam Livingstone,Extra Covers
+16,2.0,6.0,,Kyle Jamieson,Jitesh Sharma,Long-Off
+16,2.0,1.0,WD,Kyle Jamieson,Jitesh Sharma,Long-Off (Wide)
+16,1.0,6.0,,Kyle Jamieson,Jitesh Sharma,Deceptive Scoop
+15,6.0,2.0,,Kyle Jamieson,Jitesh Sharma,Deep Mid-Wicket
+15,5.0,1.0,,Arshdeep Singh,Liam Livingstone,Deep Leg
+15,4.0,4.0,,Arshdeep Singh,Jitesh Sharma,Covers
+15,3.0,4.0,,Arshdeep Singh,Jitesh Sharma,Fine Leg
+15,2.0,1.0,,Arshdeep Singh,Jitesh Sharma,Fine Leg
+15,1.0,1.0,,Arshdeep Singh,Liam Livingstone,Deep Mid-Wicket
+...,,,,,,
+0,4.0,2.0,,Arshdeep Singh,Phil Salt,Country
+0,3.0,6.0,,Arshdeep Singh,Phil Salt,Fine Leg
+0,2.0,0.0,,Arshdeep Singh,Phil Salt,Extra Covers
+0,1.0,0.0,,Arshdeep Singh,Phil Salt,Covers
+0,1.0,1.0,WD,Arshdeep Singh,Phil Salt,Wide Flick
