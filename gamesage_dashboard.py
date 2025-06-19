@@ -1,745 +1,494 @@
-import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import folium
-from streamlit_folium import folium_static
-from opencage.geocoder import OpenCageGeocode
-from dotenv import load_dotenv
+import streamlit.components.v1 as components
 import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from collections import Counter
+from PIL import Image
+from wordcloud import WordCloud
+from textblob import TextBlob
+from matplotlib.patches import Wedge
+import matplotlib.patches as patches
 
-# 1. Page configuration & enhanced styling
-st.set_page_config(page_title="GameSage", layout="wide", page_icon="🎯",initial_sidebar_state="expanded")
-st.markdown("""
-    <style>
-      body, .css-18e3th9 { background-color: #ffffff !important; }
-      header, footer { visibility: hidden; }
-      
-      /* Sidebar styling */
-      .css-1d391kg { 
-        background-color: #f8f9fa !important;
-        border-right: 2px solid #e9ecef !important;
-      }
-      
-      .css-17eq0hr { 
-        background-color: #f8f9fa !important;
-      }
-      
-      /* Ensure sidebar is visible */
-      section[data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        width: 300px !important;
-        min-width: 300px !important;
-      }
-      
-      /* Sidebar selectbox styling */
-      .css-1d391kg .stSelectbox > div > div {
-        background-color: white;
-        border: 2px solid #667eea;
-        border-radius: 10px;
-      }
-      
-      .main-header { 
-        font-size: 48px; 
-        font-weight: bold; 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center; 
-        margin-bottom: 10px;
-        font-family: 'Arial Black', sans-serif;
-      }
-      
-      /* Rest of your existing CSS styles... */
-      .tagline {
-        font-size: 24px;
-        color: #666;
-        text-align: center;
-        margin-bottom: 40px;
-        font-style: italic;
-      }
-      
-      /* ... keep all your other existing styles ... */
-    </style>
-""", unsafe_allow_html=True)
 
-# 2. Sidebar navigation
-menu = st.sidebar.selectbox("Navigate", [
-    "Home",
-    "Missed Branding Opportunities", 
-    "Power of Prediction & Analysis",
-    "Physical & Digital Benchmarks"
-])
+# Automatically load datasets
 
-# 3. Load datasets
-try:
+
+@st.cache_data
+def load_data():
     sponsor_df = pd.read_csv("final_sponsor_detections(3).csv")
-    sponsor_df.columns = sponsor_df.columns.str.strip()
-except:
-    sponsor_df = pd.DataFrame({
-        'sponsor_name': ['Dream11', 'Tata', 'Vivo', 'Byju\'s', 'PayTM'],
-        'sponsor_asset_type': ['Jersey', 'Boundary', 'Digital', 'Stadium', 'Jersey'],
-        'sponsor_asset_visibility': ['High', 'Medium', 'High', 'Low', 'High'],
-        'confidence': [0.95, 0.87, 0.92, 0.78, 0.89]
-    })
-
-try:
     audio_df = pd.read_csv("final_match_sponsor_data_colab (1).csv")
-    audio_df.columns = audio_df.columns.str.strip()
-except:
-    audio_df = pd.DataFrame({
-        'AudioPeakScore': [85, 92, 78, 88, 95],
-        'VisibleSponsorsDuringPeak': ['Dream11, Tata', 'Vivo', 'NoSponsorDetected', 'Byju\'s, PayTM', 'Dream11']
+    df1 = pd.read_csv("cricket_shots.csv")
+    df2 = pd.read_csv("IPL2k24_tweets_data.csv")  
+    df3 = pd.read_csv("stadium_boundaries.csv")  # Assuming this is the physical benchmarks data
+    return sponsor_df, audio_df, df1, df2, df3
+
+# Load data
+try:
+    sponsor_df, audio_df, df1, df2, df3 = load_data()
+
+    # Title and header
+    st.title('GameSage: play the game beyond the game')
+    st.header('(Missed Branding opportunities):')
+
+
+       
+
+
+    # Section 1: Sponsor Detection Overview
+    st.markdown("## 1. Sponsor Detection Overview")
+    st.write("This section shows how many frames had sponsor names and how many did not.")
+
+    # Count total frames (rows in audio_df)
+    total_frames = len(audio_df)
+    missed_frames = (audio_df["VisibleSponsorsDuringPeak"].str.strip() == "NoSponsorDetected").sum()
+    detected_frames = total_frames - missed_frames
+
+    detection_data = pd.DataFrame({
+        "Detection Status": ["Detected", "Missed"],
+        "Frame Count": [detected_frames, missed_frames]
     })
 
-# 4. ENHANCED HOME SECTION
-if menu == "Home":
-    # Hero Section
-    st.markdown("""
-    <div class="hero-section">
-        <h1 style="font-size: 56px; margin-bottom: 20px; font-weight: bold;">🎯 GameSage</h1>
-        <h2 style="font-size: 28px; margin-bottom: 30px; opacity: 0.9;">Play the game beyond the game</h2>
-        <p style="font-size: 18px; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-            Revolutionizing sports marketing with AI-powered brand exposure analytics. 
-            Maximize your ROI with real-time insights and predictive optimization.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Key Features Section
-    st.markdown("## 🚀 *Key Features*")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <div class="feature-title">Real-time Analytics</div>
-            <div class="feature-desc">Track brand exposure across multiple touchpoints with computer vision and AI-powered detection</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🎯</div>
-            <div class="feature-title">Smart Optimization</div>
-            <div class="feature-desc">AI-powered placement recommendations for maximum brand visibility and engagement</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📈</div>
-            <div class="feature-title">ROI Prediction</div>
-            <div class="feature-desc">Predictive analytics to forecast campaign performance and optimize budget allocation</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col4:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🌍</div>
-            <div class="feature-title">Global Insights</div>
-            <div class="feature-desc">Location-specific analytics and cross-platform performance benchmarking</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Stats Section
-    st.markdown("""
-    <div class="stats-container">
-        <h2 style="text-align: center; margin-bottom: 40px; font-size: 32px;">📊 Platform Impact</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.markdown("""
-        <div class="stat-item">
-            <span class="stat-number">95%</span>
-            <div class="stat-label">Brand Detection Accuracy</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div class="stat-item">
-            <span class="stat-number"></span>
-            <div class="stat-label"></div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="stat-item">
-            <span class="stat-number"></span>
-            <div class="stat-label"></div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col4:
-        st.markdown("""
-        <div class="stat-item">
-            <span class="stat-number"></span>
-            <div class="stat-label"></div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Demo Section
-    st.markdown("## 🎮 *Interactive Demo*")
-    
-    demo_col1, demo_col2 = st.columns([2, 1])
-    
-    with demo_col1:
-        st.markdown("""
-        <div class="cta-section">
-            <h3 style="font-size: 28px; margin-bottom: 20px;">Experience GameSage in Action</h3>
-            <p style="font-size: 16px; margin-bottom: 30px; opacity: 0.9;">
-                Explore our comprehensive analytics dashboard with real IPL data and see how AI transforms sports marketing.
-            </p>
-            <div>
-                <span class="demo-badge">🏏 IPL Wagon Wheel Analysis</span>
-                <span class="demo-badge">📊 Brand ROI Calculator</span>
-                <span class="demo-badge">🎯 Missed Opportunities Detection</span>
-                <span class="demo-badge">📈 Predictive Analytics</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with demo_col2:
-        # Mini preview chart
-        fig, ax = plt.subplots(figsize=(6, 4))
-        categories = ['Brand\nAwareness', 'Social\nImpact', 'Sales\nLeads', 'Sentiment', 'Media\nValue']
-        values = [35, 20, 15, 15, 10]
-        colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
-        
-        bars = ax.bar(categories, values, color=colors, alpha=0.8)
-        ax.set_ylabel('Impact (%)', fontweight='bold')
-        ax.set_title('ROI Breakdown Preview', fontweight='bold', pad=20)
-        ax.set_ylim(0, 40)
-        
-        # Add value labels on bars
-        for bar, value in zip(bars, values):
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                   f'{value}%', ha='center', va='bottom', fontweight='bold')
-        
-        plt.xticks(rotation=0, fontsize=10)
-        plt.tight_layout()
-        st.pyplot(fig)
-    
-   
-    
-    # Use Cases
-    st.markdown("## 💼 *Use Cases*")
-    
-    use_case_col1, use_case_col2, use_case_col3 = st.columns(3)
-    
-    with use_case_col1:
-        st.markdown("""
-        *🏏 Sports Teams & Leagues*
-        - Optimize sponsor placement strategies
-        - Maximize brand exposure during matches
-        - Track competitor sponsorship performance
-        - Enhance fan engagement analytics
-        """)
-    
-    with use_case_col2:
-        st.markdown("""
-        *🏢 Brand Sponsors*
-        - Measure campaign effectiveness
-        - Compare ROI across different sports
-        - Identify viral moment opportunities
-        - Optimize advertising spend allocation
-        """)
-    
-    with use_case_col3:
-        st.markdown("""
-        *📺 Media & Broadcasting*
-        - Enhance viewer experience analytics
-        - Optimize ad placement timing
-        - Track content engagement metrics
-        - Improve broadcast monetization
-        """)
-    
-    # Footer CTA
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; padding: 40px 0;">
-        <h3 style="color: #333; margin-bottom: 20px;">Ready to revolutionize your sports marketing?</h3>
-        <p style="color: #666; font-size: 16px;">Navigate through our dashboard sections to explore the full potential of AI-powered sports analytics.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.bar_chart(detection_data.set_index("Detection Status"))
 
-# [Rest of your existing code for other sections remains the same...]
-# 5. Missed Branding Opportunities
-elif menu == "Missed Branding Opportunities":
-    st.title("Missed Branding Opportunities")
 
-    st.markdown("## Visible Sponsors & Asset Types")
+        # Section 4: Match Moments Sponsor Count
+    st.markdown("## 4. Match Moments Sponsor Count")
+    st.write("This section shows how many sponsors appeared at each significant moment (based on audio peaks).")
+
+    # Prepare data: split sponsors and count per timestamp
+    sponsor_count_df = audio_df[["TimestampFrameNumber", "VisibleSponsorsDuringPeak"]].copy()
+    sponsor_count_df["SponsorList"] = sponsor_count_df["VisibleSponsorsDuringPeak"].str.split(", ")
+    sponsor_count_df["SponsorCount"] = sponsor_count_df["SponsorList"].apply(
+        lambda x: 0 if x == ["NoSponsorDetected"] else len(x)
+    )
+
+    # Filter for moments where at least 1 sponsor was visible
+    filtered_df = sponsor_count_df[sponsor_count_df["SponsorCount"] > 0]
+
+    # Bubble chart: Timestamp vs. SponsorCount (size = count)
+    st.subheader("Sponsor Count at Key Match Moments")
+    fig_bubble, ax_bubble = plt.subplots(figsize=(10, 4))
+    ax_bubble.scatter(
+        filtered_df["TimestampFrameNumber"],
+        filtered_df["SponsorCount"],
+        s=filtered_df["SponsorCount"] * 50,  # scale bubble size
+        alpha=0.6,
+        color="mediumvioletred"
+    )
+    ax_bubble.set_xlabel("Timestamp (Frame Number)")
+    ax_bubble.set_ylabel("Sponsor Count")
+    ax_bubble.set_title("Number of Sponsors Visible at Key Match Moments")
+    st.pyplot(fig_bubble)
+
+
+
+
+
+
+    # Section 2: Visible Sponsors & Asset Types
+    st.markdown("## 2. Visible Sponsors & Asset Types")
+
     st.subheader("Raw Sponsor Data Table")
     st.dataframe(sponsor_df)
 
-    st.subheader("Sponsor-wise Asset Count")
-    sponsor_counts = sponsor_df["sponsor_name"].value_counts()
-    st.bar_chart(sponsor_counts)
+    col1, col2 = st.columns(2)
 
-    st.subheader("Asset Type Distribution")
-    asset_counts = sponsor_df["sponsor_asset_type"].value_counts()
-    st.bar_chart(asset_counts)
+    with col1:
+        st.subheader("Sponsor-wise Asset Count")
+        sponsor_counts = sponsor_df["sponsor_name"].value_counts()
+        st.bar_chart(sponsor_counts)
 
-    st.subheader("Visibility Breakdown")
-    fig_vis, ax_vis = plt.subplots()
-    vis_counts = sponsor_df["sponsor_asset_visibility"].value_counts()
-    ax_vis.pie(vis_counts, labels=vis_counts.index, autopct='%1.1f%%', startangle=90)
-    ax_vis.axis("equal")
-    st.pyplot(fig_vis)
+    with col2:
+        st.subheader("Asset Type Distribution")
+        asset_counts = sponsor_df["sponsor_asset_type"].value_counts()
+        st.bar_chart(asset_counts)
 
-    st.subheader("Confidence Score Distribution")
-    fig_conf, ax_conf = plt.subplots()
-    sns.histplot(sponsor_df["confidence"], bins=20, kde=True, color="steelblue", ax=ax_conf)
-    ax_conf.set_xlabel("Confidence Score")
-    st.pyplot(fig_conf)
+    col3, col4 = st.columns(2)
+
+    with col3:
+        st.subheader("Visibility Breakdown")
+        fig_vis, ax_vis = plt.subplots()
+        vis_counts = sponsor_df["sponsor_asset_visibility"].value_counts()
+        ax_vis.pie(vis_counts, labels=vis_counts.index, autopct='%1.1f%%', startangle=90)
+        ax_vis.axis("equal")
+        st.pyplot(fig_vis)
+
+    with col4:
+        st.subheader("Confidence Score Distribution")
+        fig_conf, ax_conf = plt.subplots()
+        sns.histplot(sponsor_df["confidence"], bins=20, kde=True, color="steelblue", ax=ax_conf)
+        ax_conf.set_xlabel("Confidence Score")
+        st.pyplot(fig_conf)
 
     st.subheader("Top 10 Sponsors by Asset Count")
     top10_df = sponsor_counts.head(10).reset_index()
     top10_df.columns = ["Sponsor", "Count"]
     st.table(top10_df)
 
-    st.markdown("## Peak Audio Score Analysis")
+    # Section 3: Peak Audio Score Analysis
+    st.markdown("## 3. Peak Audio Score Analysis")
+
     st.subheader("Raw Audio Peak Data Table")
     st.dataframe(audio_df)
 
-    st.subheader("Audio Peak Score Distribution")
-    fig_peak, ax_peak = plt.subplots()
-    sns.histplot(audio_df["AudioPeakScore"], bins=20, kde=True, color="teal", ax=ax_peak)
-    ax_peak.set_xlabel("AudioPeakScore")
-    st.pyplot(fig_peak)
+    col5, col6 = st.columns(2)
 
-    st.subheader("Sponsors Detected at Audio Peaks")
-    exploded = audio_df["VisibleSponsorsDuringPeak"].str.split(", ").explode()
-    peak_counts = exploded.value_counts().drop("NoSponsorDetected", errors="ignore")
-    st.bar_chart(peak_counts)
+    with col5:
+        st.subheader("Audio Peak Score Distribution")
+        fig_peak, ax_peak = plt.subplots()
+        sns.histplot(audio_df["AudioPeakScore"], bins=20, kde=True, color="teal", ax=ax_peak)
+        ax_peak.set_xlabel("AudioPeakScore")
+        st.pyplot(fig_peak)
 
-# 6. Power of Prediction & Analysis
-elif menu == "Power of Prediction & Analysis":
-    st.title("Power of Prediction & Analysis (RCB VS PBKS FINAL MATCH)")
-    st.write("AI-powered forecasts for brand impact and ROI")
+    with col6:
+        st.subheader("Sponsors Detected at Audio Peaks")
+        exploded = audio_df["VisibleSponsorsDuringPeak"].str.split(", ").explode()
+        peak_counts = exploded.value_counts().drop("NoSponsorDetected", errors="ignore")
+        st.bar_chart(peak_counts)
 
-    # Create IPL-style Wagon Wheel exactly like the images
-    def create_ipl_wagon_wheel(team_name, innings, total_runs, off_side_runs, on_side_runs, zones_data):
-        fig = go.Figure()
-        
-        # Create the green circular field background
-        theta = np.linspace(0, 2*np.pi, 100)
-        r = np.ones(100)
-        fig.add_trace(go.Scatterpolar(
-            r=r,
-            theta=np.degrees(theta),
-            mode='lines',
-            line=dict(color='green', width=0),
-            fill='toself',
-            fillcolor='rgba(34, 139, 34, 0.8)',
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-        
-        # Add field zone labels
-        zone_angles = {
-            'Third Man': 22.5,
-            'Point': 67.5,
-            'Cover': 112.5,
-            'Long Off': 157.5,
-            'Long On': 202.5,
-            'Mid Wicket': 247.5,
-            'Square Leg': 292.5,
-            'Fine Leg': 337.5
-        }
-        
-        for zone, angle in zone_angles.items():
-            fig.add_annotation(
-                x=0.9 * np.cos(np.radians(angle - 90)),
-                y=0.9 * np.sin(np.radians(angle - 90)),
-                text=zone,
-                showarrow=False,
-                font=dict(size=10, color='white'),
-                xref="x", yref="y"
-            )
-        
-        # Add shot lines based on zones data
-        colors = ['yellow', 'orange', 'red', 'blue', 'purple', 'pink']
-        for i, (zone, runs, boundaries) in enumerate(zones_data):
-            if runs > 0:
-                angle = zone_angles.get(zone, 0)
-                # Add multiple lines for each boundary/run
-                for j in range(boundaries + max(1, runs//4)):  # More lines for more runs
-                    r_val = 0.3 + (j * 0.1) + np.random.uniform(-0.05, 0.05)
-                    line_angle = angle + np.random.uniform(-15, 15)
-                    
-                    fig.add_trace(go.Scatterpolar(
-                        r=[0, r_val],
-                        theta=[line_angle, line_angle],
-                        mode='lines',
-                        line=dict(color=colors[i % len(colors)], width=2),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ))
-        
-        # Customize layout to match IPL style
-        fig.update_layout(
-            polar=dict(
-                bgcolor='rgba(0,0,0,0)',
-                radialaxis=dict(
-                    visible=False,
-                    range=[0, 1]
-                ),
-                angularaxis=dict(
-                    visible=False,
-                    direction='clockwise',
-                    rotation=90
-                )
-            ),
-            showlegend=False,
-            width=400,
-            height=400,
-            margin=dict(l=20, r=20, t=40, b=20),
-            title=dict(
-                text=f"Scores Round the Ground",
-                x=0.5,
-                font=dict(size=16, color='black')
-            ),
-            paper_bgcolor='white',
-            plot_bgcolor='white'
-        )
-        
-        return fig
+except FileNotFoundError as e:
+    st.error(f"File not found: {e.filename}. Make sure your CSV files are in the folder.")
 
-    # Sample data for PBKS and RCB (matching the images)
-    pbks_zones = [
-        ('Third Man', 16, 2),
-        ('Point', 6, 0),
-        ('Cover', 33, 3),
-        ('Long Off', 13, 2),
-        ('Long On', 25, 3),
-        ('Mid Wicket', 18, 1),
-        ('Square Leg', 12, 1),
-        ('Fine Leg', 8, 1)
-    ]
+
+st.header('(Power of Prediction and Analyis):')
+st.header("Map targeting")
+components.iframe(
+    "https://sponsor-map-33vc.vercel.app",
+    height=600,
+    width=1000,
+    scrolling=True
+)
+st.header("Stadium Analysis")
+
+st.subheader("Raw Ball-by-Ball Data (Innings 2)")
+st.dataframe(df1, use_container_width=True)
+
+# Assume df1 is already loaded via load_data()
+# df1 = pd.read_csv("cricket_shots.csv")  # already executed in your load_data()
+
+st.subheader("Shot-Direction Frequency (using df1)")
+
+# 1. Count occurrences of each shot direction
+shot_counts = df1['shot_direction'].value_counts().sort_index()  # pandas.Series.value_counts()[1]
+
+# 2. Render a simple bar chart in Streamlit
+st.bar_chart(shot_counts)  # Streamlit bar_chart API[2]
+
+
+shot_counts = df1['shot_direction'].value_counts().sort_index()
+shot_avg_runs = df1.groupby('shot_direction')['runs'].mean().loc[shot_counts.index]
+
+# Streamlit visualization
+st.subheader("Average Runs by Shot Direction")
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Bar chart: counts
+sns.barplot(x=shot_counts.index, y=shot_counts.values, ax=ax1, palette='Blues')
+ax1.set_xlabel("Shot Direction")
+ax1.set_ylabel("Delivery Count", color='blue')
+ax1.tick_params(axis='y', labelcolor='blue')
+ax1.set_xticklabels(shot_counts.index, rotation=45, ha='right')
+
+# Line chart: average runs
+ax2 = ax1.twinx()
+sns.lineplot(x=shot_avg_runs.index, y=shot_avg_runs.values, marker='o', color='red', ax=ax2)
+ax2.set_ylabel("Average Runs", color='red')
+ax2.tick_params(axis='y', labelcolor='red')
+
+ax1.set_title("Shot Direction Frequency and Average Runs") 
+st.pyplot(fig)
+
+st.subheader("Shots per Over (0–19)")
+
+# Compute shot counts by over in chronological order
+shots_per_over = df1['over'].value_counts().sort_index()
+
+# Render interactive line chart in Streamlit
+st.line_chart(shots_per_over)
+
+# Optional: Customized Matplotlib line plot
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(shots_per_over.index, shots_per_over.values, marker='o', color='tab:blue')
+ax.set_xlabel("Over Number")
+ax.set_ylabel("Number of Shots")
+ax.set_title("Total Shots per Over Across Innings")
+ax.set_xticks(range(0, 20))
+ax.grid(alpha=0.3)
+st.pyplot(fig)
+
+coord_map = {
+    # Straight shots
+    "Straight": (0.5, 0.5),
+    "Straight Long On": (0.5, 0.8),
+    "Straight Mid Off": (0.5, 0.3),
     
-    rcb_zones = [
-        ('Third Man', 14, 3),
-        ('Point', 6, 0),
-        ('Cover', 32, 3),
-        ('Long Off', 25, 3),
-        ('Long On', 28, 2),
-        ('Mid Wicket', 22, 2),
-        ('Square Leg', 15, 1),
-        ('Fine Leg', 12, 2)
-    ]
+    # On side (leg side) positions
+    "Long On": (0.4, 0.9),
+    "Mid-Wicket": (0.2, 0.6),
+    "Mid-Wicket (Wide)": (0.15, 0.7),
+    "Mid-Wicket (Caught)": (0.2, 0.6),
+    "Mid Wicket": (0.2, 0.6),
+    "Deep Mid-Wicket": (0.1, 0.8),
+    "Deep Mid-Wicket (W)": (0.1, 0.8),
+    "Square Leg": (0.1, 0.5),
+    "Deep Squaring-Leg": (0.05, 0.7),
+    "Long Leg": (0.1, 0.2),
+    "Fine Leg": (0.15, 0.1),
+    "Fine Leg (RHW)": (0.15, 0.1),
+    "Fine Leg Covers": (0.2, 0.15),
+    "Deep Leg": (0.05, 0.3),
+    "Deep Leg Cut": (0.1, 0.4),
+    "Deep Leg Cut (W)": (0.1, 0.4),
+    "Deep Short Mid Off": (0.3, 0.7),
+    
+    # Off side positions
+    "Long Off": (0.6, 0.9),
+    "Long Off (LHW)": (0.6, 0.9),
+    "Mid-Off": (0.7, 0.3),
+    "Mid Off": (0.7, 0.3),
+    "Mid-Off (Wide)": (0.75, 0.35),
+    "Deep Mid Off": (0.8, 0.7),
+    "Cover": (0.8, 0.4),
+    "Covers": (0.8, 0.4),
+    "Extra Covers": (0.85, 0.45),
+    "Deep Covers": (0.9, 0.6),
+    "Deep Cover Cover": (0.9, 0.6),
+    "Point": (0.9, 0.3),
+    "Forward Point": (0.85, 0.35),
+    "Deep Forward Point": (0.95, 0.5),
+    
+    # Backward positions
+    "Deep Backward Spin": (0.9, 0.2),
+    
+    # Scoop and unusual shots
+    "Deceptive Scoop": (0.3, 0.9),
+    
+    # Pushes and defensive shots
+    "Forward Push": (0.5, 0.4),
+    "Defensive Push": (0.5, 0.4),
+    
+    # Dismissal types (center field for visualization)
+    "Stumps (Bowled)": (0.5, 0.5),
+    "Stumps (LBW)": (0.5, 0.5),
+    "Stumps (Caught)": (0.5, 0.5),
+    "Bowled Out/Loss Off": (0.5, 0.5),
+    
+    # Catches
+    "Slicing Catch": (0.7, 0.6),
+    "Slicing Catch (Long O": (0.6, 0.8),
+    
+    # Country (assuming this is a regional term for a specific field position)
+    "Country": (0.3, 0.8),
+    "Country (Wide)": (0.25, 0.85),
+}
 
-    # Create two columns for side-by-side wagon wheels
+# 3. Assign coordinates
+df1["coords"] = df1["shot_direction"].map(coord_map)
+# Use apply(pd.Series) to safely expand coords into x and y columns
+coords_df = df1["coords"].apply(pd.Series)
+coords_df.columns = ["x", "y"]
+df1 = df1.join(coords_df)
+
+# 4. Aggregate counts or total runs
+agg = df1.groupby(["x", "y"])["runs"].agg("sum").reset_index()  # use "count" for shot frequency
+
+# 5. Pivot to matrix form
+heatmap_data = agg.pivot(index="y", columns="x", values="runs").fillna(0)
+
+# Replace your current image loading section with this:
+st.subheader("Field-Position Heatmap of Runs")
+
+try:
+    # Try to load the cricket field schematic
+    field_img = Image.open("cricket_field_schematic.png")
+    
+    # Plot heatmap over schematic
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(field_img, extent=(0, 1, 0, 1), aspect="auto")
+    sns.heatmap(
+        heatmap_data,
+        ax=ax,
+        cmap="Reds",
+        alpha=0.6,
+        cbar_kws={"label": "Total Runs"},
+        xticklabels=False,
+        yticklabels=False
+    )
+    ax.set_title("Field-Position Heatmap of Runs")  
+    ax.axis("off")
+    st.pyplot(fig)
+    
+except FileNotFoundError:
+    st.warning("Cricket field image not found. Showing heatmap without background.")
+    
+    # Create heatmap without background image
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(
+        heatmap_data,
+        ax=ax,
+        cmap="Reds",
+        cbar_kws={"label": "Total Runs"},
+        annot=True,
+        fmt='.0f',
+        square=True
+    )
+    ax.set_title("Field-Position Heatmap of Runs")
+    ax.set_xlabel("Field Position (X)")
+    ax.set_ylabel("Field Position (Y)")
+    st.pyplot(fig)
+
+st.header("Physical And Digital Benchmarks: ")
+st.subheader("Digital Benchmarks: ")
+st.dataframe(df2, use_container_width=True)
+df2["tweet_created_at"] = pd.to_datetime(df2["tweet_created_at"])
+df2["time_rounded"] = df2["tweet_created_at"].dt.floor("T")  
+
+view_over_time = df2.groupby("time_rounded")["tweet_view_count"].sum().reset_index()
+st.markdown("## 5. Tweet Engagement: Views Over Time")
+st.write("This line chart shows how total tweet views changed over time during the match.")
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(view_over_time["time_rounded"], view_over_time["tweet_view_count"], color="purple", marker="o")
+ax.set_xlabel("Time")
+ax.set_ylabel("Total Views")
+ax.set_title("Tweet Views Over Time")
+ax.grid(True)
+st.pyplot(fig)
+
+st.markdown("## 6. Tweet Favorites (Likes) Analysis")
+
+try:
+    # Total likes
+    total_likes = df2["tweet_favorite_count"].sum()
+
+    # Average likes per tweet
+    avg_likes = df2["tweet_favorite_count"].mean()
+
     col1, col2 = st.columns(2)
-    
     with col1:
-        st.markdown("### PBKS 2nd Innings")
-        pbks_fig = create_ipl_wagon_wheel("PBKS", "2nd Innings", 173, 39, 61, pbks_zones)
-        st.plotly_chart(pbks_fig, use_container_width=True)
-        
-        # Add the statistics table exactly like IPL
-        st.markdown("*39% Runs Off Side | 61% Runs On Side*")
-        
-        # Create stats table
-        pbks_stats = pd.DataFrame({
-            'Zone': ['Third Man', 'Point', 'Cover', 'Long Off'],
-            'Runs': [16, 6, 33, 13],
-            'Boundaries': [2, 0, 3, 2]
-        })
-        st.table(pbks_stats)
-        
-        # Add ball-by-ball summary
-        st.markdown("*Match Summary:*")
-        summary_data = {
-            'ALL': 173,
-            '1s': 45,
-            '2s': 6,
-            '3s': 0,
-            '4s': 8,
-            '6s': 14
-        }
-        
-        cols = st.columns(6)
-        colors = ['blue', 'orange', 'purple', 'green', 'lightblue', 'red']
-        for i, (key, value) in enumerate(summary_data.items()):
-            with cols[i]:
-                st.markdown(f"""
-                <div style="text-align: center; padding: 10px; border-radius: 50%; 
-                background-color: {colors[i]}; color: white; margin: 5px;">
-                    <strong>{value}</strong><br>{key}
-                </div>
-                """, unsafe_allow_html=True)
-    
+        st.metric("Total Likes on Tweets", f"{total_likes:,}")
     with col2:
-        st.markdown("### RCB 1st Innings")
-        rcb_fig = create_ipl_wagon_wheel("RCB", "1st Innings", 181, 43, 57, rcb_zones)
-        st.plotly_chart(rcb_fig, use_container_width=True)
-        
-        # Add the statistics table exactly like IPL
-        st.markdown("*43% Runs Off Side | 57% Runs On Side*")
-        
-        # Create stats table
-        rcb_stats = pd.DataFrame({
-            'Zone': ['Third Man', 'Point', 'Cover', 'Long Off'],
-            'Runs': [14, 6, 32, 25],
-            'Boundaries': [3, 0, 3, 3]
-        })
-        st.table(rcb_stats)
-        
-        # Add ball-by-ball summary
-        st.markdown("*Match Summary:*")
-        summary_data_rcb = {
-            'ALL': 181,
-            '1s': 61,
-            '2s': 11,
-            '3s': 0,
-            '4s': 11,
-            '6s': 9
-        }
-        
-        cols = st.columns(6)
-        for i, (key, value) in enumerate(summary_data_rcb.items()):
-            with cols[i]:
-                st.markdown(f"""
-                <div style="text-align: center; padding: 10px; border-radius: 50%; 
-                background-color: {colors[i]}; color: white; margin: 5px;">
-                    <strong>{value}</strong><br>{key}
-                </div>
-                """, unsafe_allow_html=True)
+        st.metric("Average Likes per Tweet", f"{avg_likes:.2f}")
 
-    # --- ROI Benchmark Analysis ---
-    st.markdown("---")
-    st.subheader("Brand Impact & ROI Benchmark Breakdown")
-    labels = [
-        'Brand Awareness', 'Social Media Impact', 'Sales & Lead Gen',
-        'Brand Sentiment', 'Media Value', 'Customer Activation'
-    ]
-    sizes = [35, 20, 15, 15, 10, 5]
-    fig_bench, ax_bench = plt.subplots()
-    ax_bench.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
-    ax_bench.axis('equal')
-    st.pyplot(fig_bench)
-    bench_df = pd.DataFrame({'Metric': labels, 'Weight (%)': sizes})
-    st.table(bench_df)
+    # Optional: Histogram of likes per tweet
+    st.subheader("Distribution of Likes per Tweet")
+    fig_like, ax_like = plt.subplots()
+    sns.histplot(df2["tweet_favorite_count"], bins=30, kde=True, color="orange", ax=ax_like)
+    ax_like.set_xlabel("Likes per Tweet")
+    ax_like.set_ylabel("Tweet Count")
+    st.pyplot(fig_like)
 
-    
+except Exception as e:
+    st.error(f"Error analyzing likes: {e}")
 
-    
-    
 
-    # --- Commentary ---
-    st.markdown("""
-    > This dashboard demonstrates how AI-powered analytics and predictive modeling can optimize both physical and digital brand placements.  
-    > The wagon wheel visualizes scoring patterns and opportunity zones for maximum brand exposure, while the ROI charts benchmark campaign effectiveness using industry-accepted metrics.
-    """)
+st.markdown("## 7. Retweet Analysis")
 
-# 7. Physical & Digital Benchmarks (Enhanced based on transcript)
-elif menu == "Physical & Digital Benchmarks":
-    st.title("Physical & Digital Benchmarks")
-    st.write("Key benchmarks for on-site signage and online campaigns based on industry research")
+try:
+    st.subheader("Retweet Trend Over Time")
+    df2["tweet_created_at"] = pd.to_datetime(df2["tweet_created_at"])
+    retweet_trend = df2.groupby(df2["tweet_created_at"].dt.date)["tweet_retweet_count"].sum()
+    st.line_chart(retweet_trend)
 
-    ## *Brand ROI Calculation Framework*
-    st.markdown("## Brand ROI Calculation Framework")
-    st.markdown("""
-    <div class="benchmark-card">
-    <h4></h4>
-    <p>:</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader("Top 5 Most Retweeted Tweets (Pie Chart)")
+    top_retweets = df2.nlargest(5, "tweet_retweet_count")[["tweet_text", "tweet_retweet_count"]]
+    fig_ret, ax_ret = plt.subplots()
+    ax_ret.pie(top_retweets["tweet_retweet_count"], labels=top_retweets["tweet_text"].str[:40] + "...", 
+               autopct="%1.1f%%", startangle=140)
+    ax_ret.axis("equal")
+    st.pyplot(fig_ret)
 
-    # Create the pie chart for ROI breakdown
-    labels = ['Brand Awareness', 'Social Media Impact', 'Sales & Lead Generation', 
-              'Brand Sentiment Analysis', 'Media Value Estimation', 'Customer Activation Rate']
-    sizes = [35, 20, 15, 15, 10, 5]
-    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#ff99cc', '#c2c2f0']
+except Exception as e:
+    st.error(f"Error in retweet analysis: {e}")
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', 
-                                      startangle=90, colors=colors, textprops={'fontsize': 10})
-    ax.set_title('Brand Impact ROI Measurement Framework', fontsize=14, fontweight='bold')
-    st.pyplot(fig)
 
-    # Detailed breakdown table
-    roi_breakdown = pd.DataFrame({
-        'Metric': labels,
-        'Weight (%)': sizes,
-        'Description': [
-            'How well target audience recognizes and recalls the brand',
-            'Engagement, mentions, and viral content performance',
-            'Direct conversion from brand exposure to sales',
-            'Market perception and brand reputation analysis',
-            'Equivalent advertising value from organic exposure',
-            'Customer engagement and repeat purchase behavior'
-        ],
-        'Measurement Method': [
-            'Surveys, brand recall tests, search volume',
-            'Social media analytics, engagement rates',
-            'Attribution modeling, conversion tracking',
-            'Sentiment analysis, brand perception studies',
-            'Media monitoring, PR value calculation',
-            'Customer lifetime value, retention rates'
-        ]
-    })
-    
-    st.subheader("Detailed ROI Metrics Breakdown")
-    st.dataframe(roi_breakdown)
+st.markdown("## 9. Tweet Text Insights")
 
-    ## *Viral Content Benchmarks*
-    st.markdown("## Viral Content Benchmarks")
-    st.markdown("""
-    <div class="benchmark-card">
-    <h4>What Makes Content "Viral" in Sports Marketing?</h4>
-    <p>Based on IPL and sports content analysis:</p>
-    </div>
-    """, unsafe_allow_html=True)
+try:
+    st.subheader("Word Cloud of All Tweets")
+    text_data = " ".join(df2["tweet_text"].astype(str).values)
+    wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text_data)
+    fig_wc, ax_wc = plt.subplots()
+    ax_wc.imshow(wordcloud, interpolation="bilinear")
+    ax_wc.axis("off")
+    st.pyplot(fig_wc)
 
-    viral_benchmarks = {
-        'Content Type': ['Fan Account Posts', 'Official Team Posts', 'Moment Highlights', 'Meme Content'],
-        'Normal Engagement': ['500-2,000 likes', '5,000-15,000 likes', '10,000-25,000 likes', '1,000-5,000 likes'],
-        'Viral Threshold': ['5,000-10,000 likes', '25,000+ likes', '50,000+ likes', '10,000+ likes'],
-        'Peak Moments': ['Wickets, Sixes, Controversies', 'Match Results, Player Performances', 'Record Breaks, Spectacular Catches', 'Funny Incidents, Player Reactions']
-    }
-    
-    viral_df = pd.DataFrame(viral_benchmarks)
-    st.table(viral_df)
+    st.subheader("Sentiment Analysis")
+    df2["sentiment"] = df2["tweet_text"].astype(str).apply(lambda x: TextBlob(x).sentiment.polarity)
+    fig_sent, ax_sent = plt.subplots()
+    sns.histplot(df2["sentiment"], bins=30, kde=True, ax=ax_sent, color="purple")
+    ax_sent.set_xlabel("Sentiment Score (-1 = Negative, +1 = Positive)")
+    st.pyplot(fig_sent)
 
-    ## *Physical vs Digital Advertising Benchmarks*
-    st.markdown("## Physical vs Digital Advertising Benchmarks")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Physical Advertising (Stadium)")
-        physical_metrics = {
-            'Placement': ['Jersey Sponsorship', 'Boundary Rope', 'Digital Boards', 'Stadium Naming'],
-            'Visibility Score': [95, 85, 75, 90],
-            'Recall Rate (%)': [80, 65, 45, 85],
-            'Cost Effectiveness': ['High', 'Medium', 'Low', 'Very High']
-        }
-        
-        physical_df = pd.DataFrame(physical_metrics)
-        st.dataframe(physical_df)
-        
-        # Physical advertising effectiveness chart
-        fig, ax = plt.subplots()
-        ax.bar(physical_df['Placement'], physical_df['Recall Rate (%)'], 
-               color=['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'])
-        ax.set_ylabel('Recall Rate (%)')
-        ax.set_title('Physical Advertising Recall Rates')
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
-    
-    with col2:
-        st.markdown("### Digital Advertising")
-        digital_metrics = {
-            'Platform': ['TV Broadcast', 'OTT/Streaming', 'Social Media', 'Website/App'],
-            'Reach (Million)': [400, 150, 200, 50],
-            'Engagement Rate (%)': [5, 12, 25, 8],
-            'Conversion Rate (%)': [2, 4, 6, 3]
-        }
-        
-        digital_df = pd.DataFrame(digital_metrics)
-        st.dataframe(digital_df)
-        
-        # Digital advertising effectiveness chart
-        fig, ax = plt.subplots()
-        ax.bar(digital_df['Platform'], digital_df['Engagement Rate (%)'], 
-               color=['#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3'])
-        ax.set_ylabel('Engagement Rate (%)')
-        ax.set_title('Digital Platform Engagement Rates')
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
+    st.subheader("Top 5 Viral Phrases (by Likes + Retweets)")
+    df2["virality"] = df2["tweet_favorite_count"] + df2["tweet_retweet_count"]
+    top_viral = df2.nlargest(5, "virality")[["tweet_text", "virality"]]
+    st.table(top_viral)
 
-    ## *Multi-Platform Campaign Effectiveness*
-    st.markdown("## Multi-Platform Campaign Effectiveness")
-    st.markdown("""
-    <div class="benchmark-card">
-    <h4>Campaign Performance: Single vs Multi-Platform</h4>
-    <p>Brands using integrated campaigns across TV, digital, and on-ground see 35-50% higher brand awareness uplift</p>
-    </div>
-    """, unsafe_allow_html=True)
+except Exception as e:
+    st.error(f"Text analysis error: {e}")
 
-    # Comparison chart
-    campaign_types = ['TV Only', 'Digital Only', 'Physical Only', 'Multi-Platform']
-    awareness_uplift = [15, 20, 25, 45]
-    roi_improvement = [10, 18, 22, 38]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    
-    ax1.bar(campaign_types, awareness_uplift, color=['#ff7675', '#74b9ff', '#00b894', '#fdcb6e'])
-    ax1.set_ylabel('Brand Awareness Uplift (%)')
-    ax1.set_title('Brand Awareness by Campaign Type')
-    ax1.tick_params(axis='x', rotation=45)
-    
-    ax2.bar(campaign_types, roi_improvement, color=['#ff7675', '#74b9ff', '#00b894', '#fdcb6e'])
-    ax2.set_ylabel('ROI Improvement (%)')
-    ax2.set_title('ROI by Campaign Type')
-    ax2.tick_params(axis='x', rotation=45)
-    
-    plt.tight_layout()
-    st.pyplot(fig)
+st.subheader("Physical benchmarks:")
+st.dataframe(df3, use_container_width=True)
 
-    ## *Stadium-Specific Insights*
-    st.markdown("## Stadium-Specific Insights")
-    st.markdown("""
-    <div class="benchmark-card">
-    <h4>Ground Dimensions Impact on Brand Exposure</h4>
-    <p>Shorter boundaries = More sixes = Higher brand visibility during replays</p>
-    </div>
-    """, unsafe_allow_html=True)
 
-    stadium_data = {
-        'Stadium': ['Wankhede (Mumbai)', 'Chinnaswamy (Bangalore)', 'Kotla (Delhi)', 'Eden Gardens (Kolkata)'],
-        'Shortest Boundary (m)': [55, 56, 60, 65],
-        'Longest Boundary (m)': [75, 70, 75, 80],
-        'Avg Sixes/Match': [12, 11, 8, 6],
-        'Brand Exposure Score': [95, 90, 75, 65]
-    }
-    
-    stadium_df = pd.DataFrame(stadium_data)
-    st.dataframe(stadium_df)
+st.title('Cricket Wagon Wheel - Narendra Modi Stadium Ahmedabad')
+#st.set_option('deprecation.showPyplotGlobalUse', False)
 
-    # Stadium effectiveness visualization
-    fig, ax = plt.subplots()
-    scatter = ax.scatter(stadium_df['Avg Sixes/Match'], stadium_df['Brand Exposure Score'], 
-                        s=100, c=['#e17055', '#74b9ff', '#00b894', '#fdcb6e'], alpha=0.7)
-    
-    for i, stadium in enumerate(stadium_df['Stadium']):
-        ax.annotate(stadium.split('(')[0], 
-                   (stadium_df['Avg Sixes/Match'][i], stadium_df['Brand Exposure Score'][i]),
-                   xytext=(5, 5), textcoords='offset points')
-    
-    ax.set_xlabel('Average Sixes per Match')
-    ax.set_ylabel('Brand Exposure Score')
-    ax.set_title('Stadium Characteristics vs Brand Exposure')
-    st.pyplot(fig)
+# Create a figure and axis with green background representing the cricket ground
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.set_facecolor('green')
 
-    ## *Key Takeaways*
-    st.markdown("## Key Takeaways for Brand Strategy")
-    st.markdown("""
-    <div class="benchmark-card">
-    <h4>Strategic Recommendations:</h4>
-    <ul>
-        <li><strong>Multi-platform approach</strong> delivers 35-50% better results than single-channel campaigns</li>
-        <li><strong>Jersey sponsorships</strong> have highest recall rates (80%) among physical placements</li>
-        <li><strong>Viral moments</strong> during wickets and sixes provide maximum organic reach</li>
-        <li><strong>Stadium selection</strong> matters - shorter boundaries = more sixes = higher exposure</li>
-        <li><strong>Digital integration</strong> with physical ads amplifies overall campaign effectiveness</li>
-    </ul>
-    </div>
-    """, unsafe_allow_html=True)
+# Draw the circular boundary of the cricket ground
+circle = plt.Circle((0, 0), 1, color='white', fill=False, linewidth=2)
+ax.add_artist(circle)
+
+# Define the zones around the ground
+zones = ['Third Man', 'Point', 'Cover', 'Long Off', 'Long On', 'Mid Wicket', 'Square Leg', 'Fine Leg']
+angles = np.linspace(0, 2 * np.pi, len(zones), endpoint=False)
+
+# Plot zone labels around the circle
+for angle, zone in zip(angles, zones):
+    x = 1.1 * np.cos(angle)
+    y = 1.1 * np.sin(angle)
+    ax.text(x, y, zone, color='white', fontsize=10, ha='center', va='center', fontweight='bold')
+
+# Mark the distance measurements on the ground
+# Straight (end-to-end) 75 m-89 m
+# Square (off-side & leg-side) 66 m-74 m
+# Behind the wicket 62 m-71 m
+
+# Convert distances to relative scale (max radius = 1)
+max_straight = 89
+max_square = 74
+max_behind = 71
+
+# Draw concentric arcs for each distance range
+# Straight line (end-to-end) - vertical line
+ax.plot([0, 0], [-75/max_straight, 75/max_straight], color='yellow', linewidth=2, label='Straight 75-89 m')
+ax.plot([0, 0], [-89/max_straight, 89/max_straight], color='yellow', linewidth=1, linestyle='dashed')
+
+# Square leg and off side arcs
+square_angles = np.linspace(np.pi/2, 3*np.pi/2, 100)
+ax.plot(66/max_square * np.cos(square_angles), 66/max_square * np.sin(square_angles), color='orange', linewidth=2, label='Square 66-74 m')
+ax.plot(74/max_square * np.cos(square_angles), 74/max_square * np.sin(square_angles), color='orange', linewidth=1, linestyle='dashed')
+
+# Behind the wicket arcs (bottom half)
+behind_angles = np.linspace(np.pi, 2*np.pi, 100)
+ax.plot(62/max_behind * np.cos(behind_angles), 62/max_behind * np.sin(behind_angles), color='red', linewidth=2, label='Behind 62-71 m')
+ax.plot(71/max_behind * np.cos(behind_angles), 71/max_behind * np.sin(behind_angles), color='red', linewidth=1, linestyle='dashed')
+
+# Set limits and aspect
+ax.set_xlim(-1.2, 1.2)
+ax.set_ylim(-1.2, 1.2)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Show legend
+ax.legend(loc='upper right', fontsize=8)
+
+# Show the plot in Streamlit
+st.pyplot(fig)
